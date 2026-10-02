@@ -1,0 +1,156 @@
+{
+  "name": "Tugas2_Pembuatan Agen AI Chatbot Web copy",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -256,
+        -48
+      ],
+      "id": "b4d65c50-e8c0-467b-be45-16746066aa54",
+      "name": "When chat message received",
+      "webhookId": "90be7c2e-b081-4985-9511-d313831ed804"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Anda adalah customer service AI untuk NF Academy. Tugas Anda adalah menjawab pertanyaan pengguna mengenai produk pelatihan, deskripsi program, dan harganya. Selalu gunakan Tool Google Sheets untuk mengambil data produk dan harga yang akurat sebelum menjawab pertanyaan pengguna. Jawablah dengan ramah, sopan, dan jelas."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        0,
+        -48
+      ],
+      "id": "4f1ccbc1-6d60-4e16-a745-bd93ca061fe1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        160
+      ],
+      "id": "6a0cbcf9-46a9-471d-ad5a-895b301c4d79",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uGvNm7zyvhHND5ml",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        96,
+        176
+      ],
+      "id": "a1222992-ef7d-4362-9e22-d3eb67be875e",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1qUJND2jURDd6_2s18aUFXP0S136QqNMZ1pMVXl8RMXE/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        256,
+        144
+      ],
+      "id": "778ca99b-ef26-4d44-8c8f-d3530a0812ad",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleApi": {
+          "id": "AdKTtk1OBupwytHe",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "16025f07-3d18-4cf9-8ab0-568c4e8f5dd0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "JkeZICJhMGJR9jBh",
+  "tags": []
+}
