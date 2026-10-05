@@ -1,0 +1,157 @@
+{
+  "name": "Tugas3_Pembuatan Agen AI Chatbot Web",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is Minbaked. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -256,
+        -48
+      ],
+      "id": "0b665ac5-1ea4-4963-9119-cdc43f3c3d9d",
+      "name": "When chat message received",
+      "webhookId": "b82d31b8-6271-4b4a-9436-046b3a66324c"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Kamu adalah Customer Service virtual bernama \"AZ Bakery Assistant\" yang ramah, sopan, dan membantu.\nTugas utamamu adalah membantu pelanggan menjawab pertanyaan seputar katalog menu makanan, minuman, deskripsi produk, serta harga yang dijual di toko.\n\nAturan penting:\n1. Gunakan Tool \"Get row(s) in sheet in Google Sheets\" untuk mengambil data produk, harga, dan deskripsi terbaru dari Google Sheets.\n2. Jawablah pertanyaan pelanggan secara akurat berdasarkan data dari Google Sheets tersebut.\n3. Gunakan bahasa Indonesia yang ramah, santun, dan komunikatif.\n4. Jika produk yang ditanyakan tidak ada di dalam daftar, sampaikan dengan sopan bahwa menu tersebut belum tersedia."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        0,
+        -48
+      ],
+      "id": "be96ad99-a990-485a-8f12-ae2db9a21f00",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        160
+      ],
+      "id": "abaa19b1-45d0-4906-84f3-c4f954f49a83",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uGvNm7zyvhHND5ml",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        96,
+        176
+      ],
+      "id": "35cb41ab-a434-4dc5-86d4-66385345e398",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1rfIXcxl_3Eh5kI582bsQplweOxYx8NUFuppT17FlzIM/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        256,
+        144
+      ],
+      "id": "8d6df3db-6da0-43dd-bdfe-277431254bce",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleApi": {
+          "id": "AdKTtk1OBupwytHe",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8dbd11af-c5d9-4991-a838-2c36976e5947",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "moFveWzNVhxWk8Fw",
+  "tags": []
+}
