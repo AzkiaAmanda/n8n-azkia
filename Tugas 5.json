@@ -1,0 +1,438 @@
+{
+  "name": "Tugas 5",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1ObOzw1FrTGoZ-Swo_qIjKgBO_UfVZeML",
+          "mode": "list",
+          "cachedResultName": "Tugas 5",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ObOzw1FrTGoZ-Swo_qIjKgBO_UfVZeML"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "b4439e2d-069a-4df2-8d9f-0db4b6fcdab2",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MS1JKbiXubIJRgvI",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12328d8e-52f4-4684-8c3c-69f4ca33657b",
+              "name": "file_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        -16
+      ],
+      "id": "79bb7dbd-5a80-43a6-8a87-07f783e4d83e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "f8f61821-2919-4475-b66c-b5d8ef765b82",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MS1JKbiXubIJRgvI",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        -16
+      ],
+      "id": "3bc5619e-7f41-4849-8b63-660437278530",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        -16
+      ],
+      "id": "17d51cf0-9bd4-4e0c-b511-f29a025c15d3",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Hgof44Dc9TacOtik",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        904,
+        216
+      ],
+      "id": "b3a2be6a-67c2-4f11-b40f-3127be8c4a3c",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uGvNm7zyvhHND5ml",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1032,
+        216
+      ],
+      "id": "1555d517-154e-47d9-9bea-f298170e8a71",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1112,
+        424
+      ],
+      "id": "972bae51-8b08-4219-9cd6-568f659cfd68",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is NoyAI. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        352
+      ],
+      "id": "84efcb13-c18c-4658-b5b7-3e7c23027512",
+      "name": "When chat message received",
+      "webhookId": "b03964f9-d70a-483d-a03c-25a2169f4768"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Kamu asisten penulisan ilmiah tugas akhir atau skripsi. Kamu dapat menjawab dengan mengacu informasi yang tersedia di data vektor pada Tool 'Supabase Vector Store.' Jika informasi tidak tersedia di Tool itu, jawablah 'Mohon maaf, saya belum dapat memberikan jawaban.'"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        352
+      ],
+      "id": "99a24e6a-6160-4bcf-a85d-795c94acf41f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        576
+      ],
+      "id": "182a2eef-8377-4beb-b7f8-9605a99cc72a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uGvNm7zyvhHND5ml",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        352,
+        576
+      ],
+      "id": "dc758d06-4a50-4c9d-8513-fd442a2a4018",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "SnHDgL27CT7md9hJ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Gunakan Tool ini untuk mencari informasi seputar penulisan ilmiah tugas akhir atau skripsi.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        576
+      ],
+      "id": "33e6c075-1af4-4f95-a22b-944940ba8193",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Hgof44Dc9TacOtik",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        576,
+        784
+      ],
+      "id": "5ad24a5e-5e37-4880-991e-4ab6d9f9c332",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uGvNm7zyvhHND5ml",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7e9cf458-af87-454e-9648-1c959a5eabc9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "Ci9odsTi1gIy9Zj7",
+  "tags": []
+}
