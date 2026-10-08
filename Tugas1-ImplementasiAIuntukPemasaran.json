@@ -1,0 +1,112 @@
+{
+  "name": "Tugas1-ImplementasiAIuntukPemasaran",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Pendaftaran SIB Mandiri NF Academy Batch 4",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nama",
+              "fieldName": "Nama",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldName": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Kelas",
+              "fieldType": "dropdown",
+              "fieldName": "Kelas",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "AI for Business"
+                  },
+                  {
+                    "option": "Codeless Data Science"
+                  },
+                  {
+                    "option": "DevOps Engineer"
+                  },
+                  {
+                    "option": "Digital Marketing"
+                  },
+                  {
+                    "option": "Fullstack Developer"
+                  },
+                  {
+                    "option": "Mobile Apps Developer"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0383dea1-e249-40e9-9f92-45759662813b",
+      "name": "On form submission",
+      "webhookId": "17df6370-ec0d-4ac7-8c99-6b75e2754b4c"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Informasi Pendaftaran SIBM NF Academy Batch 4",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }\n    .header { background-color: #0056b3; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }\n    .content { padding: 20px; }\n    .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }\n    .data-table td { padding: 8px; border-bottom: 1px solid #eee; }\n    .footer { font-size: 12px; color: #777; margin-top: 20px; text-align: center; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h2>Konfirmasi Pendaftaran SIB Mandiri Batch 4 NF Academy</h2>\n    </div>\n    <div class=\"content\">\n      <p>Halo <b>{{ $json[\"Nama\"] }}</b>,</p>\n      <p>Terima kasih telah melakukan pendaftaran. Data Anda telah berhasil kami terima di sistem NF Academy.</p>\n      <p>Berikut adalah rincian data yang Anda kirimkan:</p>\n      \n      <table class=\"data-table\">\n        <tr>\n          <td><b>Nama Lengkap:</b></td>\n          <td>{{ $json[\"Nama\"] }}</td>\n        </tr>\n        <tr>\n          <td><b>Email Terdaftar:</b></td>\n          <td>{{ $json[\"Email\"] }}</td>\n        </tr>\n        <tr>\n          <td><b>Kelas Pilihan:</b></td>\n          <td>{{ $json[\"Kelas\"] }}</td>\n        </tr>\n      </table>\n\n      <p>Mohon cek kembali data di atas. Jika ada kesalahan atau pertanyaan lebih lanjut, silakan balas email ini.</p>\n      <p>Selanjutnya, tim kami akan melakukan verifikasi dan menghubungi Anda untuk langkah berikutnya.</p>\n      <p>Salam hangat,<br><b>Tim Penerimaan NF Academy</b></p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        0
+      ],
+      "id": "41294639-1845-40fe-ac34-54c9f33a4e66",
+      "name": "Send a message",
+      "webhookId": "db31e8cb-773b-45d4-ad4c-4314c874ff3c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7UZ3IvXxdzDG4ESy",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "92f6b3ff-f2c3-44d6-8b93-0e14ad2cf488",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "d9vguR03ZomoQ5Sl",
+  "tags": []
+}
