@@ -1,0 +1,317 @@
+{
+  "name": "Tugas3_ImplementasiAIuntukPemasaran",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.videoUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "Binary Data"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1280,
+        64
+      ],
+      "id": "ff93a5b0-be59-4f9e-9d4e-1ca02589ee4a",
+      "name": "Download Gambar"
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        64
+      ],
+      "id": "afc594cc-30ce-4b03-ba78-15428f670ef5",
+      "name": "Menunggu Proses Generate Gambar",
+      "webhookId": "613714ca-f7ba-45d5-9018-065963f6e023"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "78939152-89a2-40a2-b15f-eb3511e1a064",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        864,
+        64
+      ],
+      "id": "d60708c6-54ea-4928-85d9-40ea9f49d7e7",
+      "name": "Check Jika Generate Sudah Selesai"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $node[\"Mengirim Video Generation Request ke API\"].json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $node[\"Submit Text Prompt\"].json[\"api_key\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        -16
+      ],
+      "id": "a76750a4-8474-4f4c-825b-41a71f28a80a",
+      "name": "Mendapatkan Status Generate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = JSON.parse($json.data.resultJson);\n\nreturn [{\n  videoUrl: result.resultUrls?.[0] || null\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        64
+      ],
+      "id": "0e5870ae-aaf1-43ce-9f7c-f1fb48b7fe59",
+      "name": "Parse Video URL"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "Binary Data",
+        "name": "Video Topik 3",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1bigCp71h8VGx1REQTLFkCIhODcr-qURy",
+          "mode": "list",
+          "cachedResultName": "HasilTugas3_ImplementasiAIuntukPemasaran",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1bigCp71h8VGx1REQTLFkCIhODcr-qURy"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1472,
+        64
+      ],
+      "id": "5cb964af-da78-43a5-8ceb-8d902ae7d765",
+      "name": "Upload file to Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MS1JKbiXubIJRgvI",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"grok-imagine/image-to-video\",\n  \"input\": {\n    \"image_urls\": [\n      \"{{$json.img_url}}\"\n    ],\n    \"prompt\": \"{{$json.prompt}}\",\n    \"mode\": \"normal\",\n    \"duration\": 6,\n    \"resolution\": \"480p\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        192,
+        64
+      ],
+      "id": "bef09f81-3063-48d7-b423-64246d14ea38",
+      "name": "Mengirim Video Generation Request ke API"
+    },
+    {
+      "parameters": {
+        "formTitle": "Generate Video Konten Otomatis",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "prompt",
+              "fieldName": "prompt"
+            },
+            {
+              "fieldLabel": "img_url",
+              "fieldName": "img_url"
+            },
+            {
+              "fieldLabel": "api_key",
+              "fieldName": "api_key"
+            },
+            {
+              "fieldLabel": "task_type",
+              "fieldName": "task_type"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -32,
+        64
+      ],
+      "id": "341303ab-d1e4-4917-aefc-560c872391f4",
+      "name": "Submit Text Prompt",
+      "webhookId": "f244ae55-0f74-47b3-8158-097e599598eb"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Download Gambar": {
+      "main": [
+        [
+          {
+            "node": "Upload file to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Menunggu Proses Generate Gambar": {
+      "main": [
+        [
+          {
+            "node": "Mendapatkan Status Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Jika Generate Sudah Selesai": {
+      "main": [
+        [
+          {
+            "node": "Parse Video URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Menunggu Proses Generate Gambar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mendapatkan Status Generate": {
+      "main": [
+        [
+          {
+            "node": "Check Jika Generate Sudah Selesai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Video URL": {
+      "main": [
+        [
+          {
+            "node": "Download Gambar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mengirim Video Generation Request ke API": {
+      "main": [
+        [
+          {
+            "node": "Menunggu Proses Generate Gambar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Text Prompt": {
+      "main": [
+        [
+          {
+            "node": "Mengirim Video Generation Request ke API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c768de3d-a8f4-454f-8c53-19fcb4a96528",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "2hkDoCDl37soSOrC",
+  "tags": []
+}
