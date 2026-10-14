@@ -169,10 +169,10 @@
           "mappingMode": "defineBelow",
           "value": {
             "Tanggal": "={{ $('Menyiapkan Teks Ai').item.json.metrics.processedAt }}",
-            "NF Acadeny": "={{ $('Menyiapkan Teks Ai').item.json.metrics.processedAt }}",
-            "BISA AI": "={{ $('Menyiapkan Teks Ai').item.json.metrics.processedAt }}",
-            "Vinix 7": "={{ $('Menyiapkan Teks Ai').item.json.metrics.processedAt }}",
-            "Total Mention": "={{ $('Menyiapkan Teks Ai').item.json.metrics.processedAt }}"
+            "NF Acadeny": "={{ $('Menyiapkan Teks Ai').item.json.metrics.breakdown.nfa }}",
+            "BISA AI": "={{ $('Menyiapkan Teks Ai').item.json.metrics.breakdown.bisa }}",
+            "Vinix 7": "={{ $('Menyiapkan Teks Ai').item.json.metrics.breakdown.vinix }}",
+            "Total Mention": "={{ $('Menyiapkan Teks Ai').item.json.metrics.total_mentions }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -471,7 +471,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "78f0b6fe-1adf-409d-b3a3-097b70229ce3",
+  "versionId": "f3d5160e-e149-4a39-9dd8-f78112672a7d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
