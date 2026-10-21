@@ -1,0 +1,401 @@
+{
+  "name": "Tugas2_Implementasi AI untuk Keuangan_Pencatat Pengeluaran dari Email",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        16
+      ],
+      "id": "6f8d7290-68a3-4032-a843-490ff91d6efd",
+      "name": "Menunggu dan Mengambil Email Baru",
+      "credentials": {
+        "imap": {
+          "id": "cUvIZFtx199TjYyj",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.from }}",
+                    "rightValue": "azkiaamanda03@gmail.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "f9915359-882a-46ea-ae8d-5fd83147a73d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "IDCloudHost"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "adbe1dcd-82f4-4704-8cc6-b4d5b7d19cc7",
+                    "leftValue": "={{ $json.from }}",
+                    "rightValue": "zkhia326@gmail.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Grab"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6459642a-91ca-4a2c-b6a8-9b76069a8e27",
+                    "leftValue": "={{ $json.from }}",
+                    "rightValue": "0110224099@student.nurulfikri.ac.id",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Tokopedia"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "1792b18d-e022-417c-967f-8dd0b4debdbd",
+      "name": "Memeriksa Email"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8f578a46-c18a-4cdd-9c6f-6e224a7655de",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ZZkj7DJNxsmifoLYiaJwFwFOBw0Lwb-Cx4MdWDYr59Y",
+          "mode": "list",
+          "cachedResultName": "Pencatat Keuangan dari Email",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZZkj7DJNxsmifoLYiaJwFwFOBw0Lwb-Cx4MdWDYr59Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 263513098,
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZZkj7DJNxsmifoLYiaJwFwFOBw0Lwb-Cx4MdWDYr59Y/edit#gid=263513098"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tanggal": "={{ $json.Tanggal }}",
+            "Jumlah": "={{ $json.Jumlah }}",
+            "Produk": "={{ $json.Nominal }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Tanggal",
+              "displayName": "Tanggal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jumlah",
+              "displayName": "Jumlah",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Produk",
+              "displayName": "Produk",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        16
+      ],
+      "id": "d8d36b47-ae38-4b3b-b0c2-e2f14407b92d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MDL45qWyWmgB6lsb",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36fb3475-dd0b-4662-a5d9-01d3e90ace8d",
+              "name": "Tanggal",
+              "value": "={{ $('Menunggu dan Mengambil Email Baru').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "4402224e-3b15-4284-be68-af6c9db78261",
+              "name": "Jumlah",
+              "value": "={{ $json.textPlain.match(/Total.*?Rp\\s*([ \\d\\.]+)/s)?.[1].replace(/\\./g, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "ad9f724e-face-41a1-95f8-dfe5df3d1e2a",
+              "name": "Nominal",
+              "value": "Cloud",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        192,
+        -144
+      ],
+      "id": "79cf2bdd-d948-45bb-816f-e57599ad2eec",
+      "name": "IDCloudhost"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36fb3475-dd0b-4662-a5d9-01d3e90ace8d",
+              "name": "Tanggal",
+              "value": "={{ $('Menunggu dan Mengambil Email Baru').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "4402224e-3b15-4284-be68-af6c9db78261",
+              "name": "Jumlah",
+              "value": "={{ $json.textPlain.match(/Total Tarif.*?([\\d\\.]+)/s)?.[1].replace(/\\./g, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "ad9f724e-face-41a1-95f8-dfe5df3d1e2a",
+              "name": "Nominal",
+              "value": "Grab",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        192,
+        16
+      ],
+      "id": "5b54bf0c-90cd-44be-9c7e-521723703bc0",
+      "name": "Grab"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36fb3475-dd0b-4662-a5d9-01d3e90ace8d",
+              "name": "Tanggal",
+              "value": "={{ $('Menunggu dan Mengambil Email Baru').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "4402224e-3b15-4284-be68-af6c9db78261",
+              "name": "Jumlah",
+              "value": "={{ $json.textPlain.match(/Harga\\s*Rp([\\d\\.]+)/)?.[1].replace(/\\./g, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "ad9f724e-face-41a1-95f8-dfe5df3d1e2a",
+              "name": "Nominal",
+              "value": "={{ $json.textPlain.match(/Nominal\\s*(.*?)\\s*Waktu/s)?.[1].trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        192,
+        176
+      ],
+      "id": "bb8be58f-1001-4167-8fc5-e4c1e30c5536",
+      "name": "Tokopedia"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Menunggu dan Mengambil Email Baru": {
+      "main": [
+        [
+          {
+            "node": "Memeriksa Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memeriksa Email": {
+      "main": [
+        [
+          {
+            "node": "IDCloudhost",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Grab",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tokopedia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IDCloudhost": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grab": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Tokopedia": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ec35704e-365a-4d2c-99f2-2dfbe8dc8996",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "78U9uo1KBHAXWFZQ",
+  "tags": []
+}
