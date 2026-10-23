@@ -1,0 +1,326 @@
+{
+  "name": "Tugas5_Implementasi AI untuk Keuangan_Peringkas Berita Keuangan Harian",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        128,
+        64
+      ],
+      "id": "13c3b2af-9f1e-4530-8f40-bcc6a5a673b3",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        352,
+        64
+      ],
+      "id": "6603003e-819a-4e22-b573-5052354616b4",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.link }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        576,
+        64
+      ],
+      "id": "d58a2d79-a243-466e-a030-142890478cdf",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "text",
+              "cssSelector": "body"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -432,
+        272
+      ],
+      "id": "8d49222f-d804-4175-8b47-f034a3889973",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "url": "https://finance.detik.com/rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        80
+      ],
+      "id": "a452f9a4-ca12-4b9c-afbe-c53c0214bcd0",
+      "name": "Finance Detik RSS"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -432,
+        80
+      ],
+      "id": "8d07ab9c-484e-44ef-a246-c9ec29175f11",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://www.cnbcindonesia.com/market/rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        -80
+      ],
+      "id": "8b181213-3247-49f5-8015-7a76bced0713",
+      "name": "CNBC Indonesia RSS"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        272
+      ],
+      "id": "36a42c66-ac05-49f2-acc7-4c22086c2e31",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Berikut adalah 10 artikel berita keuangan teratas hari ini : {{ $json.text }}\nberdasarkan teks diatas, tolong \"Ringkas 5 berita utama pasar hari ini dalam 5 poin\"",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        96,
+        272
+      ],
+      "id": "8c2b7aff-3d7d-488a-aab7-b19b3c692537",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "chatId": "1390374441",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        288
+      ],
+      "id": "c756e60d-89d9-4dbf-8086-2c718b7dfbee",
+      "name": "Send a text message",
+      "webhookId": "7775d26a-ab78-4568-b211-66b5c8d587fa",
+      "credentials": {
+        "telegramApi": {
+          "id": "M8YzQROwLu0htkFU",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        368
+      ],
+      "id": "9c1421c9-cc25-4f0b-b31b-7cda1933c5f2",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uGvNm7zyvhHND5ml",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finance Detik RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "CNBC Indonesia RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Finance Detik RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CNBC Indonesia RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2804572b-9f4b-460a-af48-9ddcf0c2a72e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "wyuWXJqfpfWgaDu6",
+  "tags": []
+}
