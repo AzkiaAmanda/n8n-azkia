@@ -1,0 +1,273 @@
+{
+  "name": "Tugas 7_Implementasi AI untuk Keuangan",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "af7654ef-cb3c-4728-b9e4-d6dd7b40a1ff",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1u28B17N3jZuYw37HplZQJZaEXaeYJReDK3IOG29e8TI",
+          "mode": "list",
+          "cachedResultName": "Data Dummy Catatan Keuangan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u28B17N3jZuYw37HplZQJZaEXaeYJReDK3IOG29e8TI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u28B17N3jZuYw37HplZQJZaEXaeYJReDK3IOG29e8TI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "6fe29b73-2495-480e-aaae-da2d1c438256",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MDL45qWyWmgB6lsb",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1e737a34-551c-4160-8401-c5f86bdfc96e",
+              "leftValue": "={{ $node[\"Filter 7 Hari & Format Teks\"].json.hasExpenses }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "a2cc2ea1-a580-4487-a8ce-ac4983a8eda3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "1390374441",
+        "text": "Tidak ditemukan log pengeluaran untuk 7 hari terakhir. Tidak ada analisis AI yang dibuat.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        192
+      ],
+      "id": "0366f65d-89b8-4c61-8177-7cf1cc45168e",
+      "name": "Send a text message",
+      "webhookId": "8112826c-8bf4-4af2-8201-dc9db0e41ecc",
+      "credentials": {
+        "telegramApi": {
+          "id": "M8YzQROwLu0htkFU",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $node[\"Filter 7 Hari & Format Teks\"].json.promptData }}\n\nInstruksi: Tulis ringkasan kebiasaan belanja saya minggu ini dan beri 1 saran penghematan konkret.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        928,
+        -192
+      ],
+      "id": "d759e61e-62cc-4fab-976a-7bc8ba145ab4",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        -16
+      ],
+      "id": "1e3e177e-e95b-4322-a221-1b1edeaea69a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uGvNm7zyvhHND5ml",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst today = new Date();\ntoday.setHours(23, 59, 59, 999);\n\nconst sevenDaysAgo = new Date(today);\nsevenDaysAgo.setDate(today.getDate() - 7);\nsevenDaysAgo.setHours(0, 0, 0, 0);\n\nlet formattedString = \"Data pengeluaran saya 7 hari terakhir:\\n\\n\";\nlet hasExpenses = false;\n\nfor (const item of items) {\n  const rawDate = item.json[\"Tanggal\"] || item.json[\"tanggal\"];\n  if (!rawDate) continue;\n\n  const parts = rawDate.split(\"/\");\n  if (parts.length !== 3) continue;\n\n  const day = parseInt(parts[0], 10);\n  const month = parseInt(parts[1], 10) - 1;\n  const year = parseInt(parts[2], 10);\n  const expenseDate = new Date(year, month, day);\n\n  if (expenseDate >= sevenDaysAgo && expenseDate <= today) {\n    hasExpenses = true;\n    const kategori = item.json[\"Kategori\"] || item.json[\"kategori\"] || \"\";\n    const deskripsi = item.json[\"Deskripsi\"] || item.json[\"deskripsi\"] || \"\";\n    const metode = item.json[\"Metode Pembayaran\"] || item.json[\"metode\"] || \"\";\n    const penerima = item.json[\"Penerima\"] || item.json[\"penerima\"] || \"\";\n    const jumlah = item.json[\"Jumlah\"] || item.json[\"jumlah\"] || 0;\n\n    formattedString += `${rawDate} - ${kategori}\\n${deskripsi}\\nMetode: ${metode}\\nPenerima: ${penerima}\\nRp${jumlah}\\n\\n`;\n  }\n}\n\nreturn [\n  {\n    json: {\n      hasExpenses: hasExpenses,\n      promptData: formattedString\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "410a8c50-c41b-4a6d-bcc5-b5460ecb2182",
+      "name": "Filter 7 Hari & Format Teks"
+    },
+    {
+      "parameters": {
+        "chatId": "1390374441",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        -192
+      ],
+      "id": "9b576aa5-151b-45eb-8e03-4b0e3d998fda",
+      "name": "Send a text message1",
+      "webhookId": "f5f7f290-1ef6-401d-bd60-c8f301a50668",
+      "credentials": {
+        "telegramApi": {
+          "id": "M8YzQROwLu0htkFU",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter 7 Hari & Format Teks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter 7 Hari & Format Teks": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d6777385-56dc-4190-99f8-7c73258fdf1a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "WuzePm0ZrHhflThk",
+  "tags": []
+}
