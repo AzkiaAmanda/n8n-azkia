@@ -1,0 +1,345 @@
+{
+  "name": "Tugas 6_Implementasi AI Untuk Keuangan_Sistem Triase Phising AI",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2528e57e-3d7b-410b-954f-c685c6945dfc",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7UZ3IvXxdzDG4ESy",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9acf9a9d-18e2-4b3b-a5d1-6fefbe60edb4",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "customer@bcainsurance.co.id",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "845f5968-4de2-43fa-af33-307697fbac0b",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "haloblu@bcadigital.co.id",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "f4ef471a-8867-41fc-bba6-57670e4b6e5a",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "customer@bcalife.co.id",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "f74e2e87-add4-4223-bb31-dfb8d5707a6f",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "recruitmentbcaf@bcaf.id",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "86bfcce1-0852-4004-9970-0efccf57c8cc",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "0110224099@student.nurulfikri.ac.id",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "b1e7255f-9919-4aa1-a2ee-147e2461d225",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analisis teks email ini untuk tanda-tanda phishing keuangan. Fokus pada urgensi palsu, tautan mencurigakan, permintaan info pribadi, atau peniruan identitas bank. Beri skor bahaya dari 1 sampai 10. Jawab HANYA dengan format: 'Skor: [angka]'\n\nSubject: {{ $json.Subject }}\nEmail: {{ $json.snippet }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        480,
+        -288
+      ],
+      "id": "cc970d98-61e0-4938-bf4d-efb16b13ab38",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        -144
+      ],
+      "id": "d3639ff4-2728-4de7-a964-524a0111d698",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uGvNm7zyvhHND5ml",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const llmOutput = $json.text;\nconst emailMessageId = $node[\"Gmail Trigger\"].json.id;\nconst match = llmOutput.match(/Skor:\\s*(\\d+)/);\n\nlet score = 0;\n\nif (match && match[1]) {\n  score = parseInt(match[1], 10);\n}\n\nreturn {\n  json: {\n    score: score,\n    id: emailMessageId,\n    llmOutput: llmOutput\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        -288
+      ],
+      "id": "0844ed67-cb34-4ed5-bd89-e1233ce8d85a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cff56f3c-c492-4ce8-8ea8-72a49ed86095",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 6,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1008,
+        -288
+      ],
+      "id": "331f715a-553d-41f3-afb4-bb27ad2878dd",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_5755365973963454573"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1232,
+        -384
+      ],
+      "id": "17e9dde2-ab69-43a7-bb10-e14dde11199f",
+      "name": "Add label to message",
+      "webhookId": "e733b07d-ff9c-46db-9d28-0976130c9fb8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7UZ3IvXxdzDG4ESy",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1390374441",
+        "text": "=⚠️ Tinjauan Email Diperlukan ⚠️ Email ini TIDAK dihapus, tapi AI mendeteksi indikasi ringan/sedang. Mohon periksa secara manual.\nSkor Risiko: {{ $json.score }}/10\nPengirim: {{ $('Gmail Trigger').item.json.From }}\nSubjek: {{ $('Gmail Trigger').item.json.Subject }}\nRingkasan AI: {{ $json.llmOutput }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1232,
+        -192
+      ],
+      "id": "97b8118c-debb-4d0d-bc0d-cd548e077033",
+      "name": "Send a text message",
+      "webhookId": "e2864f3b-5738-451a-a99e-5dd72b684ee3",
+      "credentials": {
+        "telegramApi": {
+          "id": "M8YzQROwLu0htkFU",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1390374441",
+        "text": "=Ada email baru dari Allowlist: {{ $('Gmail Trigger').item.json.From }}\nSubject: {{ $('Gmail Trigger').item.json.Subject }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        96
+      ],
+      "id": "2342a00d-36a2-4d5c-ae3f-65fc30e783e9",
+      "name": "Send a text message1",
+      "webhookId": "57389c4a-3684-4f0f-b793-cae4206b1958",
+      "credentials": {
+        "telegramApi": {
+          "id": "M8YzQROwLu0htkFU",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "83c93434-1577-486b-86fb-760333f812bd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "Z8wSMzygcTM9lugZ",
+  "tags": []
+}
