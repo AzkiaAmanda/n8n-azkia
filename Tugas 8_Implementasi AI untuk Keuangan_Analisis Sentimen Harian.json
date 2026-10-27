@@ -1,0 +1,431 @@
+{
+  "name": "Tugas 8_Implementasi AI untuk Keuangan_Analisis Sentimen Harian",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        16,
+        -96
+      ],
+      "id": "964e108d-9ba7-4706-9ec5-abce5e773dd6",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://cointelegraph.com/rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        -96
+      ],
+      "id": "4bfaab71-dc18-496f-9e33-f0d76e1b59ea",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the sentiment of the following crypto news headline. Respond ONLY with ONE word: 'Positive', 'Negative', or 'Neutral'.\n\nHeadline:\n{{ $json.title }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        464,
+        -96
+      ],
+      "id": "34060bf4-031e-4569-abb8-292bd4565966",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1jbt1gNSWwmjMDWQB1jBHJXzRXrwma5Y41RCjfL8d9uI",
+          "mode": "list",
+          "cachedResultName": "Data Analisis Sentimen",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jbt1gNSWwmjMDWQB1jBHJXzRXrwma5Y41RCjfL8d9uI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jbt1gNSWwmjMDWQB1jBHJXzRXrwma5Y41RCjfL8d9uI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now.toFormat(\"yyyy-MM-dd HH:mm:ss\") }}",
+            "Tweet_ID / News_ID": "={{ $('RSS Read').item.json.guid }}",
+            "Tweet Text / Headline": "={{ $('RSS Read').item.json.title }}",
+            "Sentiment": "={{ $json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tweet_ID / News_ID",
+              "displayName": "Tweet_ID / News_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tweet Text / Headline",
+              "displayName": "Tweet Text / Headline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        -96
+      ],
+      "id": "0bd40f72-8c6c-4d19-94eb-b93ee7ec8792",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MDL45qWyWmgB6lsb",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1jbt1gNSWwmjMDWQB1jBHJXzRXrwma5Y41RCjfL8d9uI",
+          "mode": "list",
+          "cachedResultName": "Data Analisis Sentimen",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jbt1gNSWwmjMDWQB1jBHJXzRXrwma5Y41RCjfL8d9uI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jbt1gNSWwmjMDWQB1jBHJXzRXrwma5Y41RCjfL8d9uI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        240,
+        384
+      ],
+      "id": "c43067af-f807-4efe-a5ce-b117e929da85",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MDL45qWyWmgB6lsb",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let positive = 0;\nlet negative = 0;\nlet neutral = 0;\n\nfor (const item of items) {\n  const sentiment = item.json.Sentiment;\n  if (sentiment === 'Positive') {\n    positive++;\n  } else if (sentiment === 'Negative') {\n    negative++;\n  } else if (sentiment === 'Neutral') {\n    neutral++;\n  }\n}\n\nconst total = items.length;\nconst positivePct = total > 0 ? ((positive / total) * 100).toFixed(1) : 0;\nconst negativePct = total > 0 ? ((negative / total) * 100).toFixed(1) : 0;\nconst neutralPct = total > 0 ? ((neutral / total) * 100).toFixed(1) : 0;\n\nreturn {\n  total_berita: total,\n  positive_count: positive,\n  positive_percentage: positivePct + '%',\n  negative_count: negative,\n  negative_percentage: negativePct + '%',\n  neutral_count: neutral,\n  neutral_percentage: neutralPct + '%'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        384
+      ],
+      "id": "5f3d7494-53f4-4c3d-b0b1-264759229a72",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chatId": "1390374441",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        992,
+        384
+      ],
+      "id": "748371b4-a549-41cc-9e8f-0600e47a3ba9",
+      "name": "Send a text message",
+      "webhookId": "b99b261e-b5f1-45ab-96f8-15194ccdf7a1",
+      "credentials": {
+        "telegramApi": {
+          "id": "M8YzQROwLu0htkFU",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "xiaomi/mimo-v2.6-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        544,
+        80
+      ],
+      "id": "4625e9ac-8fca-4724-8a6a-acff9d902f6b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "94NiDuxXqAtoMqPa",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "xiaomi/mimo-v2.6-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        592,
+        512
+      ],
+      "id": "320a071e-46d8-41df-9493-c7a83a0050e7",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "94NiDuxXqAtoMqPa",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### Alur 2: Membuat Laporan Harian Otomatis",
+        "height": 368,
+        "width": 1232,
+        "color": "#89A4BE"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        288
+      ],
+      "typeVersion": 1,
+      "id": "5918368e-2a1b-4e0a-a719-af94a32cf992",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Alur 1: Mengumpulkan Data Real-Time (Dengan RSS Read)",
+        "height": 384,
+        "width": 1104,
+        "color": "#E19D9D"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "73fb15b6-5bec-469b-9fe4-4fe02af0d78e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        16,
+        384
+      ],
+      "id": "e697aba9-f4f6-449e-b82d-ab8a037e6b89",
+      "name": "Schedule Trigger - Harian"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Anda adalah seorang analis sentimen media sosial dan berita kripto.\nTuliskan kesimpulan singkat (dalam bahasa Indonesia) untuk laporan Telegram, berdasarkan data statistik sentimen harian berikut:\n\nTotal Berita: {{ $json.total_berita }}\nPositive: {{ $json.positive_count }} ({{ $json.positive_percentage }})\nNegative: {{ $json.negative_count }} ({{ $json.negative_percentage }})\nNeutral: {{ $json.neutral_count }} ({{ $json.neutral_percentage }})\n```[cite: 7, 22]",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        672,
+        384
+      ],
+      "id": "bbdc6e9f-ca9a-492c-9622-ac48607e73b4",
+      "name": "Basic LLM Chain - Kesimpulan"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain - Kesimpulan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain - Kesimpulan",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger - Harian": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain - Kesimpulan": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5dd19374-b222-451b-a00a-5542d6f1f152",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "Z06EtFwyoTF9R2oT",
+  "tags": []
+}
